@@ -1,6 +1,7 @@
 #lang racket/gui
 
-(require opengl racket/class)
+(require opengl
+         racket/class)
 
 (provide (all-defined-out))
 
@@ -12,7 +13,8 @@
                 [verbose? #f]
                 [clear-color '(0.0 0.0 1.0 1.0)])
 
-    (field [min-gl-version '(3 0)])
+    (field [min-gl-version '(3 0)]
+           [stopping? #f])
 
     (define (info msg . args)
       (when verbose?
@@ -26,6 +28,7 @@
       (info "detected OpenGL version ~a" (GL (gl-version)))
       (define min-gl-version? (GL (gl-version-at-least? min-gl-version)))
       (info "OpenGL version at least ~a? ~a" min-gl-version min-gl-version?)
+      (GL (glEnable GL_DEPTH_TEST))
       min-gl-version?)
 
     (define/public (activate)
@@ -34,7 +37,8 @@
 
     (define/public (deactivate)
       (info "deactivating")
-      (set! active? #f))
+      (set! active? #f)
+      (set! stopping? #t))
 
     (define/public (terminate)
       (info "terminating")
