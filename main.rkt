@@ -35,17 +35,8 @@
 
   (define cube (new gl-cube% [canvas canvas]))
 
-  ;; (define cube-positions
-  ;;   (list (vec3  0.0  0.0   0.0)
-  ;;         (vec3  2.0  5.0 -15.0)
-  ;;         (vec3 -1.5 -2.2  -2.5)
-  ;;         (vec3 -3.8 -2.0 -12.3)
-  ;;         (vec3  2.4 -0.4  -3.5)
-  ;;         (vec3 -1.7  3.0  -7.5)
-  ;;         (vec3  1.3 -2.0  -2.5)
-  ;;         (vec3  1.5  2.0  -2.5)
-  ;;         (vec3  1.5  0.2  -1.5)
-  ;;         (vec3 -1.3  1.0  -1.5)))
+  (define view (translate (mat4 1.0) (vec3 0.0 0.0 -9.0)))
+  (define projection (perspective (radians 45.0) (/ 4.0 3.0) 0.1 100.0))
 
   (letrec
       ([t (thread
@@ -54,24 +45,24 @@
              (let loop ()
                (unless (get-field stopping? canvas)
                  (collect-garbage 'incremental)
-
                  ;; setup
-                 (define model (rotate (mat4 1.0) (/ (current-inexact-milliseconds) 1000.0)
-                                       (vec3 1.0 0.5 0.25)))
-                 (define view (translate (mat4 1.0) (vec3 0.0 0.0 -3.0)))
-                 (define projection (perspective (radians 45.0) (/ 4.0 3.0) 0.1 100.0))
 
                  ;; draw
                  (send canvas clear)
-                 (send cube draw canvas model view projection)
 
-                 ;; (for ([v (in-list cube-positions)]
-                 ;;       [k (in-naturals)])
-                 ;;   (define model
-                 ;;     (rotate (translate (mat4 1.0) v)
-                 ;;             (radians (* 20.0 k))
-                 ;;             (vec3 1.0 0.3 0.5)))
-                 ;;   (send cube draw canvas model view projection))
+                 (for* ([i (in-range -1.0 2.0)]
+                        [j (in-range -1.0 2.0)]
+                        [k (in-range -1.0 2.0)])
+                   (define modelRot (rotate (mat4 1.0)
+                                            (/ (current-inexact-milliseconds) 1000.0)
+                                            (vec3 1.0 0.5 0.25)))
+                   (define modelTrans (translate (mat4 1.0) (vec3 i j k)))
+                   (define modelScale
+                     (scale (mat4 1.0)
+                            (vec3 (+ 0.995
+                                     (* 0.05
+                                        (sin (/ (current-inexact-milliseconds) 75.0)))))))
+                   (send cube draw modelRot modelTrans modelScale view projection))
 
                  ;; commit
                  (send canvas swap-gl-buffers)
