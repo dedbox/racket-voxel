@@ -7,7 +7,7 @@
 
 (define gl-canvas%
   (class canvas%
-    (inherit with-gl-context)
+    (inherit with-gl-context get-gl-client-size)
 
     (init-field [active? #t]
                 [verbose? #f]
@@ -46,14 +46,20 @@
 
     (define/override (on-size width height)
       (info "resizing canvas to ~ax~a" width height)
+      (info "aspect ratio ~a" (/ width height))
       (GL (glViewport 0 0 width height)))
 
     (define/override (on-char event)
       (define code (send event get-key-code))
       (define release-code (send event get-key-release-code))
-      (info "key event ~a ~a" code release-code)
-      (when (equal? (list code release-code) '(escape press))
-        (set! active? #f)))
+      (info "unhandled key event ~v ~v" code release-code))
+
+    (define/override (on-event event)
+      (info "unhandled mouse ~a event" (send event get-event-type)))
+
+    (define/public (aspect-ratio)
+      (define-values (width height) (get-gl-client-size))
+      (real->single-flonum (/ width height)))
 
     (super-new [style '(gl no-autoclear)])
 
