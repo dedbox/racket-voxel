@@ -35,6 +35,10 @@
           [(#\s 'press) (move-camera-backward! cam)]
           [(#\a 'press) (strafe-camera-right! cam)]
           [(#\d 'press) (strafe-camera-left! cam)]
+          [(#\e 'press) (move-camera-up! cam)]
+          [(#\c 'press) (move-camera-down! cam)]
+          [(#\x 'press) (rotate-camera-right! cam)]
+          [(#\z 'press) (rotate-camera-left! cam)]
           [('release _) (void)]
           [(_ _) (super on-char event)]))
 
